@@ -2,13 +2,15 @@
 # # raise Exception("naujas erroras")
 #
 # try:
-#     # raise Exception("ggg")
-#     my_list = []
-#     print("kazkas")
-#
+#     my_l = ["pirmas"]
+#     print("exceptaas veikia")
+#     print(my_l[1])
 # except:
 #     print("kitkas")
 
-my_l = ["pirmas"]
+def random_exception():
+    print('kazkas')
 
-print(my_l[0])
+
+
+random_exception()
