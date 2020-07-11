@@ -1,3 +1,5 @@
+import random
+
 #
 # # raise Exception("naujas erroras")
 #
@@ -7,6 +9,11 @@
 #     print(my_l[1])
 # except:
 #     print("kitkas")
+
+rand_exc = [IndexError, SyntaxError, KeyboardInterrupt]
+print(random.choice(rand_exc))
+print(random.random())
+print(random)
 
 def random_exception():
     print('kazkas')
