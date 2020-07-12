@@ -70,17 +70,17 @@ properties = {
 
 // user-defined property definitions
 propertyDefinitions = {
-  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:1, type:"boolean"},
-  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:1, type:"boolean"},
+  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", type:"boolean"},
+  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", type:"boolean"},
   preloadTool: {title:"Preload tool", description:"Preloads the next tool at a tool change (if any).", type:"boolean"},
-  maxSpindleSpeed:{title:"max Spindle Speed", description:"Value for S", group:0, type:"integer"},
-  autoBazes: {title:"Automatines bazes", description:"Iraso bloka G10 L2 P  X  Y  Z ", group:0, type:"boolean"},
-  xOffset:{title:"X Offset", description:"Value for X workoffset", group:0, type:"string"}, // xOffset - Anton
-  yOffset:{title:"Y Offset", description:"Value for Y workoffset", group:0, type:"string"}, // yOffset - Anton
-  zOffset:{title:"Z Offset", description:"Value for Z workoffset", group:0, type:"string"}, // zOffset - Anton
-  showSequenceNumbers: {title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", group:1, type:"boolean"},
-  sequenceNumberStart: {title:"Start sequence number", description:"The number at which to start the sequence numbers.", group:1, type:"integer"},
-  sequenceNumberIncrement: {title:"Sequence number increment", description:"The amount by which the sequence number is incremented by in each block.", group:1, type:"integer"},
+  maxSpindleSpeed:{group:0, title:"max Spindle Speed", description:"Value for S", type:"integer"},
+  autoBazes: {group:1, title:"Automatines bazes", description:"Iraso bloka G10 L2 P  X  Y  Z ", type:"boolean"},
+  xOffset:{group:1, title:"X Offset", description:"Value for X workoffset", type:"string"}, // xOffset - Anton
+  yOffset:{group:1, title:"Y Offset", description:"Value for Y workoffset", type:"string"}, // yOffset - Anton
+  zOffset:{group:1, title:"Z Offset", description:"Value for Z workoffset", type:"string"}, // zOffset - Anton
+  showSequenceNumbers: {title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", type:"boolean"},
+  sequenceNumberStart: {title:"Start sequence number", description:"The number at which to start the sequence numbers.", type:"integer"},
+  sequenceNumberIncrement: {title:"Sequence number increment", description:"The amount by which the sequence number is incremented by in each block.", type:"integer"},
   optionalStop: {title:"Optional stop", description:"Outputs optional stop code during when necessary in the code.", type:"boolean"},
   useShortestDirection: {title:"Use shortest direction", description:"Specifies that the shortest angular direction should be used.", type:"boolean"},
   useParametricFeed:  {title:"Parametric feed", description:"Specifies the feed value that should be output using a Q value.", type:"boolean"},
@@ -88,10 +88,10 @@ propertyDefinitions = {
   useCIP: {title:"Use CIP", description:"Enable to use the CIP command.", type:"boolean"},
   useCycle832: {title:"Use CYCLE832", description:"Enable to use CYCLE832.", type:"boolean"},
   toolAsName: {title:"Tool as name", description:"If enabled, the tool will be called with the tool description rather than the tool number.", type:"boolean"},
-  useSubroutines: {title:"Use subroutines", description:"Specifies that subroutines per each operation should be generated.", type:"boolean"},
-  useFilesForSubprograms: {title:"Use files for subroutines", description:"If enabled, subroutines will be saved as individual files.", type:"boolean"},
-  useSubroutinePatterns: {title:"Use subroutine patterns", description:"Generates subroutines for patterned operation.", type:"boolean"},
-  useSubroutineCycles: {title:"Use subroutine cycles", description:"Generates subroutines for cycle operations on same holes.", type:"boolean"},
+  useSubroutines: {group:2, title:"Use subroutines", description:"Specifies that subroutines per each operation should be generated.", type:"boolean"},
+  useFilesForSubprograms: {group:3, title:"Use files for subroutines", description:"If enabled, subroutines will be saved as individual files.", type:"boolean"},
+  useSubroutinePatterns: {group:2, title:"Use subroutine patterns", description:"Generates subroutines for patterned operation.", type:"boolean"},
+  useSubroutineCycles: {group:2, title:"Use subroutine cycles", description:"Generates subroutines for cycle operations on same holes.", type:"boolean"},
   safeRetractDistance: {title:"Safe retract distance", description:"Specifies the distance to add to retract distance when rewinding rotary axes.", type:"spatial"}
 };
 

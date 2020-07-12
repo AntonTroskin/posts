@@ -80,42 +80,42 @@ properties = {
 };
 
 propertyDefinitions = {
-  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:1, type:"boolean"},
-  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:1, type:"boolean"},
-  writeVersion: {title:"Write version", description:"Write the version number in the header of the code.", group:1, type:"boolean"},
-  preloadTool: {title:"Preload tool", description:"Preloads the next tool at a tool change (if any).", group:0, type:"boolean"},
-  maxSpindleSpeed:{title:"max Spindle Speed", description:"Value for S", group:0, type:"integer"},
-  autoBazes: {title:"Automatines bazes", description:"Iraso bloka G10 L2 P  X  Y  Z ", group:0, type:"boolean"},
-  xOffset:{title:"X Offset", description:"Value for X workoffset", group:0, type:"string"}, // xOffset - Anton
-  yOffset:{title:"Y Offset", description:"Value for Y workoffset", group:0, type:"string"}, // yOffset - Anton
-  zOffset:{title:"Z Offset", description:"Value for Z workoffset", group:0, type:"string"}, // zOffset - Anton
-  chipTransport: {title:"Use chip transport", description:"Enable to turn on chip transport at start of program.", group:2, type:"boolean"},
-  showSequenceNumbers: {title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", group:8, type:"boolean"},
-  sequenceNumberStart: {title:"Start sequence number", description:"The number at which to start the sequence numbers.", group:8, type:"integer"},
-  sequenceNumberIncrement: {title:"Sequence number increment", description:"The amount by which the sequence number is incremented by in each block.", group:8, type:"integer"},
-  sequenceNumberOnlyOnToolChange: {title:"Block number only on tool change", description:"Specifies that block numbers should only be output at tool changes.", group:4, type:"boolean"},
-  optionalStop: {title:"Optional stop", description:"Specifies that optional stops M1 should be output at tool changes.", group:1, type:"boolean"},
-  separateWordsWithSpace: {title:"Separate words with space", description:"Adds spaces between words if 'yes' is selected.", group:9, type:"boolean"},
-  useRadius: {title:"Radius arcs", description:"If yes is selected, arcs are output using radius values rather than IJK.", group:1, type:"boolean"},
-  useParametricFeed:  {title:"Parametric feed", description:"Parametric feed values based on movement type are output.", group:9, type:"boolean"},
-  showNotes: {title:"Show notes", description:"Enable to output notes for operations.", group:9, type:"boolean"},
-  useG0: {title:"Use G0", description:"Specifies that G0s should be used for rapid moves when moving along a single axis.", group:1, type:"boolean"},
-  useG28: {title:"Use G28 instead of G53", description:"Specifies that machine retracts should be done using G28 instead of G53.", type:"boolean"},
-  useSubroutines: {title:"Use subroutines", description:"Enables output of subroutines for each operation.", group:1, type:"boolean"},
-  useSubroutinePatterns: {title:"Subroutines for patterns", description:"Enable output of subroutines for patterns.", group:1, type:"boolean"},
-  useSubroutineCycles: {title:"Subroutines for cycles", description:"Enable output of subroutines for cycles.", group:1, type:"boolean"},
-  useG187: {title:"Use G187", description:"Specifies that smoothing using G187 should be used.", group:2, type:"boolean"},
-  homePositionCenter: {title:"Home position center", description:"Enable to center the part along X at the end of program for easy access. Requires a CNC with a moving table.", group:1, type:"boolean"},
-  optionallyCycleToolsAtStart: {title:"Optionally cycle tools at start", description:"Cycle through each tool used at the beginning of the program when block delete is turned off.", group:1, type:"boolean"},
-  optionallyMeasureToolsAtStart: {title:"Optionally measure tools at start", description:"Measure each tool used at the beginning of the program when block delete is turned off.", group:2, type:"boolean"},
-  toolBreakageTolerance: {title:"Tool breakage tolerance", description:"Specifies the tolerance for which tool break detection will raise an alarm.", group:9, type:"spatial"},
-  safeStartAllOperations: {title:"Safe start all operations", description:"Write optional blocks at the beginning of all operations that include all commands to start program.", group:9, type:"boolean"},
-  fastToolChange: {title:"Fast tool change", description:"Skip spindle off, coolant off, and Z retract to make tool change quicker.", group:2, type:"boolean"},
-  useG95: {title:"Use G95", description:"Use IPR/MPR instead of IPM/MPM.", group:0, type:"boolean"}, //anton
-  useG95forTapping: {title:"Use G95 for tapping", description:"use IPR/MPR instead of IPM/MPM for tapping", group:0, type:"boolean"},
-  useG73Retract: {title:"G73 cycles include accumulated depth", description:"Use G73 Q K format for accumulated depth support.", group:2, type:"boolean"},
-  setting34: {title:"Feed rate calculation diameter", description:"Defines the part diameter in inches that the control uses to calculate feed rates (Setting 34).", group:9, type:"spatial", range:[0.1, 9999.0]},
-  useDPMFeeds: {title:"Rotary moves use IPM feeds", description:"Enable to output IPM feeds, disable for Inverse Time feeds with rotary axes moves.", group:9, type:"boolean"}
+  writeMachine: {group:9, title:"Write machine", description:"Output the machine settings in the header of the code.", type:"boolean"},
+  writeTools: {group:9, title:"Write tool list", description:"Output a tool list in the header of the code.", type:"boolean"},
+  writeVersion: {group:9, title:"Write version", description:"Write the version number in the header of the code.", type:"boolean"},
+  preloadTool: {group:4, title:"Preload tool", description:"Preloads the next tool at a tool change (if any).", type:"boolean"},
+  maxSpindleSpeed:{group:0, title:"max Spindle Speed", description:"Value for S", type:"integer"},
+  autoBazes: {group:1, title:"Automatines bazes", description:"Iraso bloka G10 L2 P  X  Y  Z ", type:"boolean"},
+  xOffset:{group:1, title:"X Offset", description:"Value for X workoffset", type:"string"}, // xOffset - Anton
+  yOffset:{group:1, title:"Y Offset", description:"Value for Y workoffset", type:"string"}, // yOffset - Anton
+  zOffset:{group:1, title:"Z Offset", description:"Value for Z workoffset", type:"string"}, // zOffset - Anton
+  chipTransport: {group:5, title:"Use chip transport", description:"Enable to turn on chip transport at start of program.", type:"boolean"},
+  showSequenceNumbers: {group:9, title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", type:"boolean"},
+  sequenceNumberStart: {group:9, title:"Start sequence number", description:"The number at which to start the sequence numbers.", type:"integer"},
+  sequenceNumberIncrement: {group:9, title:"Sequence number increment", description:"The amount by which the sequence number is incremented by in each block.", type:"integer"},
+  sequenceNumberOnlyOnToolChange: {group:9, title:"Block number only on tool change", description:"Specifies that block numbers should only be output at tool changes.", type:"boolean"},
+  optionalStop: {group:4, title:"Optional stop", description:"Specifies that optional stops M1 should be output at tool changes.", type:"boolean"},
+  separateWordsWithSpace: {group:9, title:"Separate words with space", description:"Adds spaces between words if 'yes' is selected.", type:"boolean"},
+  useRadius: {group:4, title:"Radius arcs", description:"If yes is selected, arcs are output using radius values rather than IJK.", type:"boolean"},
+  useParametricFeed:  {group:5, title:"Parametric feed", description:"Parametric feed values based on movement type are output.", type:"boolean"},
+  showNotes: {group:5, title:"Show notes", description:"Enable to output notes for operations.", type:"boolean"},
+  useG0: {group:5, title:"Use G0", description:"Specifies that G0s should be used for rapid moves when moving along a single axis.", type:"boolean"},
+  useG28: {group:5, title:"Use G28 instead of G53", description:"Specifies that machine retracts should be done using G28 instead of G53.", type:"boolean"},
+  useSubroutines: {group:3, title:"Use subroutines", description:"Enables output of subroutines for each operation.", type:"boolean"},
+  useSubroutinePatterns: {group:3, title:"Subroutines for patterns", description:"Enable output of subroutines for patterns.", type:"boolean"},
+  useSubroutineCycles: {group:3, title:"Subroutines for cycles", description:"Enable output of subroutines for cycles.", type:"boolean"},
+  useG187: {group:4, title:"Use G187", description:"Specifies that smoothing using G187 should be used.", type:"boolean"},
+  homePositionCenter: {group:4, title:"Home position center", description:"Enable to center the part along X at the end of program for easy access. Requires a CNC with a moving table.", type:"boolean"},
+  optionallyCycleToolsAtStart: {group:5, title:"Optionally cycle tools at start", description:"Cycle through each tool used at the beginning of the program when block delete is turned off.", type:"boolean"},
+  optionallyMeasureToolsAtStart: {group:5, title:"Optionally measure tools at start", description:"Measure each tool used at the beginning of the program when block delete is turned off.", type:"boolean"},
+  toolBreakageTolerance: {group:5, title:"Tool breakage tolerance", description:"Specifies the tolerance for which tool break detection will raise an alarm.", type:"spatial"},
+  safeStartAllOperations: {group:5, title:"Safe start all operations", description:"Write optional blocks at the beginning of all operations that include all commands to start program.", type:"boolean"},
+  fastToolChange: {group:5, title:"Fast tool change", description:"Skip spindle off, coolant off, and Z retract to make tool change quicker.", type:"boolean"},
+  useG95: {group:2, title:"Use G95", description:"Use IPR/MPR instead of IPM/MPM.", type:"boolean"}, //anton
+  useG95forTapping: {group:2, title:"Use G95 for tapping", description:"use IPR/MPR instead of IPM/MPM for tapping", type:"boolean"},
+  useG73Retract: {group:4, title:"G73 cycles include accumulated depth", description:"Use G73 Q K format for accumulated depth support.", type:"boolean"},
+  setting34: {group:5, title:"Feed rate calculation diameter", description:"Defines the part diameter in inches that the control uses to calculate feed rates (Setting 34).", type:"spatial", range:[0.1, 9999.0]},
+  useDPMFeeds: {group:5, title:"Rotary moves use IPM feeds", description:"Enable to output IPM feeds, disable for Inverse Time feeds with rotary axes moves.", type:"boolean"}
 };
 
 
