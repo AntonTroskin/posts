@@ -3,6 +3,7 @@
   All rights reserved.
 
   ANTON EDITION: added configuration
+  07/12/2020 - major changes: added autobase, max spindle
 
   HAAS post processor configuration.
 
@@ -44,67 +45,77 @@ properties = {
   writeTools: true, // writes the tools
   writeVersion: false, // include version info
   preloadTool: true, // preloads next tool on tool change if any
+  maxSpindleSpeed:15000, //max Spindle speed
+  autoBazes: true,
+  xOffset:"0", // enter X-offset value for output in G10 block 
+  yOffset:"0", // enter Y-offset value for output in G10 block 
+  zOffset:"0", // enter Z-offset value for output in G10 block 
   chipTransport: false, // turn on chip transport at start of program
   showSequenceNumbers: false, // show sequence numbers
   sequenceNumberStart: 10, // first sequence number
-  sequenceNumberIncrement: 5, // increment for sequence numbers
-  sequenceNumberOnlyOnToolChange: false, // only output sequence numbers on tool change
+  sequenceNumberIncrement: 10, // increment for sequence numbers
+  sequenceNumberOnlyOnToolChange: true, // only output sequence numbers on tool change
   optionalStop: true, // optional stop
   separateWordsWithSpace: true, // specifies that the words should be separated with a white space
-  useRadius: false, // specifies that arcs should be output using the radius (R word) instead of the I, J, and K words.
+  useRadius: true, // specifies that arcs should be output using the radius (R word) instead of the I, J, and K words.
   useParametricFeed: false, // specifies that feed should be output using Q values
   showNotes: true, // specifies that operation notes should be output
   useG0: true, // allow G0 when moving along more than one axis
   useG28: false, // specifies that G28 should be used instead of G53
   useSubroutines: false, // specifies that subroutines should be generated
   useSubroutinePatterns: false, // generates subroutines for patterned operation
-  useSubroutineCycles: true, // generates subroutines for cycle operations on same holes
+  useSubroutineCycles: false, // generates subroutines for cycle operations on same holes
   useG187: false, // use G187 to set smoothing on the machine
   homePositionCenter: false, // moves the part in X in center of the door at end of program (ONLY WORKS IF THE TABLE IS MOVING)
   optionallyCycleToolsAtStart: false, // cycle through each tool used at the beginning of the program when block delete is turned off - this allows the operator to easily measure all tools before they are used for the first run of the program
   optionallyMeasureToolsAtStart: false, // measure each tool used at the beginning of the program when block delete is turned off - this allows the operator to easily measure all tools before they are used for the first run of the program
   toolBreakageTolerance: 0.1, // value for which tool break detection will raise an alarm
   safeStartAllOperations: false, // write optional blocks at the beginning of all operations that include all commands to start program
-  fastToolChange: false, // skip spindle off, coolant off, and Z retract to make tool change quicker
+  fastToolChange: true, // skip spindle off, coolant off, and Z retract to make tool change quicker
   useG95: true, // use IPR/MPR instead of IPM/MPM // anton
   useG95forTapping: true, // use IPR/MPR instead of IPM/MPM for tapping
   useG73Retract: true, // use G73 Q K format for accumulated depth support
-  setting34: 1.0, // diameter used by control to calculate feed rates (INCH value)
+  setting34: 1., // diameter used by control to calculate feed rates (INCH value)
   useDPMFeeds: false // output DPM feeds instead of Inverse Time feeds
 };
 
 propertyDefinitions = {
-  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:0, type:"boolean"},
-  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:0, type:"boolean"},
-  writeVersion: {title:"Write version", description:"Write the version number in the header of the code.", group:0, type:"boolean"},
-  preloadTool: {title:"Preload tool", description:"Preloads the next tool at a tool change (if any).", type:"boolean"},
-  chipTransport: {title:"Use chip transport", description:"Enable to turn on chip transport at start of program.", type:"boolean"},
-  showSequenceNumbers: {title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", group:1, type:"boolean"},
-  sequenceNumberStart: {title:"Start sequence number", description:"The number at which to start the sequence numbers.", group:1, type:"integer"},
-  sequenceNumberIncrement: {title:"Sequence number increment", description:"The amount by which the sequence number is incremented by in each block.", group:1, type:"integer"},
-  sequenceNumberOnlyOnToolChange: {title:"Block number only on tool change", description:"Specifies that block numbers should only be output at tool changes.", type:"boolean"},
-  optionalStop: {title:"Optional stop", description:"Specifies that optional stops M1 should be output at tool changes.", type:"boolean"},
-  separateWordsWithSpace: {title:"Separate words with space", description:"Adds spaces between words if 'yes' is selected.", type:"boolean"},
-  useRadius: {title:"Radius arcs", description:"If yes is selected, arcs are output using radius values rather than IJK.", type:"boolean"},
-  useParametricFeed:  {title:"Parametric feed", description:"Parametric feed values based on movement type are output.", type:"boolean"},
-  showNotes: {title:"Show notes", description:"Enable to output notes for operations.", type:"boolean"},
-  useG0: {title:"Use G0", description:"Specifies that G0s should be used for rapid moves when moving along a single axis.", type:"boolean"},
+  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:1, type:"boolean"},
+  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:1, type:"boolean"},
+  writeVersion: {title:"Write version", description:"Write the version number in the header of the code.", group:1, type:"boolean"},
+  preloadTool: {title:"Preload tool", description:"Preloads the next tool at a tool change (if any).", group:0, type:"boolean"},
+  maxSpindleSpeed:{title:"max Spindle Speed", description:"Value for S", group:0, type:"integer"},
+  autoBazes: {title:"Automatines bazes", description:"Iraso bloka G10 L2 P  X  Y  Z ", group:0, type:"boolean"},
+  xOffset:{title:"X Offset", description:"Value for X workoffset", group:0, type:"string"}, // xOffset - Anton
+  yOffset:{title:"Y Offset", description:"Value for Y workoffset", group:0, type:"string"}, // yOffset - Anton
+  zOffset:{title:"Z Offset", description:"Value for Z workoffset", group:0, type:"string"}, // zOffset - Anton
+  chipTransport: {title:"Use chip transport", description:"Enable to turn on chip transport at start of program.", group:2, type:"boolean"},
+  showSequenceNumbers: {title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", group:8, type:"boolean"},
+  sequenceNumberStart: {title:"Start sequence number", description:"The number at which to start the sequence numbers.", group:8, type:"integer"},
+  sequenceNumberIncrement: {title:"Sequence number increment", description:"The amount by which the sequence number is incremented by in each block.", group:8, type:"integer"},
+  sequenceNumberOnlyOnToolChange: {title:"Block number only on tool change", description:"Specifies that block numbers should only be output at tool changes.", group:4, type:"boolean"},
+  optionalStop: {title:"Optional stop", description:"Specifies that optional stops M1 should be output at tool changes.", group:1, type:"boolean"},
+  separateWordsWithSpace: {title:"Separate words with space", description:"Adds spaces between words if 'yes' is selected.", group:9, type:"boolean"},
+  useRadius: {title:"Radius arcs", description:"If yes is selected, arcs are output using radius values rather than IJK.", group:1, type:"boolean"},
+  useParametricFeed:  {title:"Parametric feed", description:"Parametric feed values based on movement type are output.", group:9, type:"boolean"},
+  showNotes: {title:"Show notes", description:"Enable to output notes for operations.", group:9, type:"boolean"},
+  useG0: {title:"Use G0", description:"Specifies that G0s should be used for rapid moves when moving along a single axis.", group:1, type:"boolean"},
   useG28: {title:"Use G28 instead of G53", description:"Specifies that machine retracts should be done using G28 instead of G53.", type:"boolean"},
-  useSubroutines: {title:"Use subroutines", description:"Enables output of subroutines for each operation.", type:"boolean"},
-  useSubroutinePatterns: {title:"Subroutines for patterns", description:"Enable output of subroutines for patterns.", type:"boolean"},
-  useSubroutineCycles: {title:"Subroutines for cycles", description:"Enable output of subroutines for cycles.", type:"boolean"},
-  useG187: {title:"Use G187", description:"Specifies that smoothing using G187 should be used.", type:"boolean"},
-  homePositionCenter: {title:"Home position center", description:"Enable to center the part along X at the end of program for easy access. Requires a CNC with a moving table.", type:"boolean"},
-  optionallyCycleToolsAtStart: {title:"Optionally cycle tools at start", description:"Cycle through each tool used at the beginning of the program when block delete is turned off.", type:"boolean"},
-  optionallyMeasureToolsAtStart: {title:"Optionally measure tools at start", description:"Measure each tool used at the beginning of the program when block delete is turned off.", type:"boolean"},
-  toolBreakageTolerance: {title:"Tool breakage tolerance", description:"Specifies the tolerance for which tool break detection will raise an alarm.", type:"spatial"},
-  safeStartAllOperations: {title:"Safe start all operations", description:"Write optional blocks at the beginning of all operations that include all commands to start program.", type:"boolean"},
-  fastToolChange: {title:"Fast tool change", description:"Skip spindle off, coolant off, and Z retract to make tool change quicker.", type:"boolean"},
-  useG95: {title:"Use G95", description:"Use IPR/MPR instead of IPM/MPM.", type:"boolean"}, //anton
-  useG95forTapping: {title:"Use G95 for tapping", description:"use IPR/MPR instead of IPM/MPM for tapping", type:"boolean"},
-  useG73Retract: {title:"G73 cycles include accumulated depth", description:"Use G73 Q K format for accumulated depth support.", type:"boolean"},
-  setting34: {title:"Feed rate calculation diameter", description:"Defines the part diameter in inches that the control uses to calculate feed rates (Setting 34).", type:"spatial", range:[0.1, 9999.0]},
-  useDPMFeeds: {title:"Rotary moves use IPM feeds", description:"Enable to output IPM feeds, disable for Inverse Time feeds with rotary axes moves.", type:"boolean"}
+  useSubroutines: {title:"Use subroutines", description:"Enables output of subroutines for each operation.", group:1, type:"boolean"},
+  useSubroutinePatterns: {title:"Subroutines for patterns", description:"Enable output of subroutines for patterns.", group:1, type:"boolean"},
+  useSubroutineCycles: {title:"Subroutines for cycles", description:"Enable output of subroutines for cycles.", group:1, type:"boolean"},
+  useG187: {title:"Use G187", description:"Specifies that smoothing using G187 should be used.", group:2, type:"boolean"},
+  homePositionCenter: {title:"Home position center", description:"Enable to center the part along X at the end of program for easy access. Requires a CNC with a moving table.", group:1, type:"boolean"},
+  optionallyCycleToolsAtStart: {title:"Optionally cycle tools at start", description:"Cycle through each tool used at the beginning of the program when block delete is turned off.", group:1, type:"boolean"},
+  optionallyMeasureToolsAtStart: {title:"Optionally measure tools at start", description:"Measure each tool used at the beginning of the program when block delete is turned off.", group:2, type:"boolean"},
+  toolBreakageTolerance: {title:"Tool breakage tolerance", description:"Specifies the tolerance for which tool break detection will raise an alarm.", group:9, type:"spatial"},
+  safeStartAllOperations: {title:"Safe start all operations", description:"Write optional blocks at the beginning of all operations that include all commands to start program.", group:9, type:"boolean"},
+  fastToolChange: {title:"Fast tool change", description:"Skip spindle off, coolant off, and Z retract to make tool change quicker.", group:2, type:"boolean"},
+  useG95: {title:"Use G95", description:"Use IPR/MPR instead of IPM/MPM.", group:0, type:"boolean"}, //anton
+  useG95forTapping: {title:"Use G95 for tapping", description:"use IPR/MPR instead of IPM/MPM for tapping", group:0, type:"boolean"},
+  useG73Retract: {title:"G73 cycles include accumulated depth", description:"Use G73 Q K format for accumulated depth support.", group:2, type:"boolean"},
+  setting34: {title:"Feed rate calculation diameter", description:"Defines the part diameter in inches that the control uses to calculate feed rates (Setting 34).", group:9, type:"spatial", range:[0.1, 9999.0]},
+  useDPMFeeds: {title:"Rotary moves use IPM feeds", description:"Enable to output IPM feeds, disable for Inverse Time feeds with rotary axes moves.", group:9, type:"boolean"}
 };
 
 
@@ -154,7 +165,7 @@ var bOutput = createVariable({prefix:"B"}, abcFormat);
 var cOutput = createVariable({prefix:"C"}, abcFormat);
 var feedOutput = createVariable({prefix:"F", force:false}, feedFormat); //anton nebuvo force:true
 var pitchOutput = createVariable({prefix:"F", force:true}, pitchFormat);
-var sOutput = createVariable({prefix:"S", force:true}, rpmFormat);
+var sOutput = createVariable({prefix:"S", force:true}, rpmFormat); //anton force false
 var dOutput = createVariable({}, dFormat);
 
 // circular output
@@ -163,7 +174,7 @@ var jOutput = createReferenceVariable({prefix:"J", force:true}, xyzFormat);
 var kOutput = createReferenceVariable({prefix:"K", force:true}, xyzFormat);
 
 var gMotionModal = createModal({}, gFormat); // modal group 1 // G0-G3, ...
-var gPlaneModal = createModal({onchange:function () {gMotionModal.reset();}}, gFormat); // modal group 2 // G17-19
+var gPlaneModal = createModal({onchange:function () {gMotionModal.reset();}, force:false}, gFormat); // modal group 2 // G17-19 ---force:false ANTON
 var gAbsIncModal = createModal({}, gFormat); // modal group 3 // G90-91
 var gFeedModeModal = createModal({}, gFormat); // modal group 5 // G93-94
 var gUnitModal = createModal({}, gFormat); // modal group 6 // G20-21
@@ -482,8 +493,17 @@ function onOpen() {
     writeln("")
   }
 
-  writeWords("G10 L2 P1 X-0 Y-0 Z-0");
+//G10 L2 P X Y Z offset - Anton
+if (properties.autoBazes) {
+  var workOffset = getSection(0).workOffset;
+  workOffset = workOffset == 0 ? 1 : workOffset;
+   var xoffset = parseFloat(properties.xOffset);
+   var yoffset = parseFloat(properties.yOffset);
+   var zoffset = parseFloat(properties.zOffset);
+  writeWords("G10 L2 P" + workOffset + " X" + xyzFormat.format(xoffset) + " Y" + xyzFormat.format(yoffset) + " Z" + xyzFormat.format(zoffset));
   writeln("")
+}
+
 
   // if (properties.useG0) { //anton
   //   writeComment(localize("Using G0 which travels along dogleg path."));
@@ -841,7 +861,11 @@ function getFeed(f) {
     }
     currentFeedId = undefined; // force Q feed next time
   }
-  return feedOutput.format(f); // use feed value
+  if (spindleSpeed > properties.maxSpindleSpeed){ //anton maxspindlespeed
+    koef = spindleSpeed / properties.maxSpindleSpeed;
+    return feedOutput.format(f / koef);
+  }
+  return feedOutput.format(f); // use feed value 
 }
 
 function initializeActiveFeeds() {
@@ -1467,7 +1491,16 @@ function onSection() {
         writeComment(tool.description + "    D=" + xyzFormat.format(tool.diameter) + "   ZMIN=" + xyzFormat.format(zRange.getMinimum()));
       }
     }
-    
+    // korektorius ANTON
+
+    // if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
+    //   writeBlock(gFormat.format(10), "L12" + " P" + tool.diameterOffset + " R" + tool.cornerRadius);
+    // }
+    if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
+      // writeBlock(gFormat.format(90), gFormat.format(10),
+      // "L12" + " P" + tool.diameterOffset + " R" + xyzFormat.format(tool.diameter/2));
+      writeWords(" M1  ( DIAMETRO KORKTORIUS )")
+    }
 
     if (hasParameter("operation-comment")) { //anton
         var comment = getParameter("operation-comment");
@@ -1536,17 +1569,32 @@ function onSection() {
   if (spindleChanged || operationNeedsSafeStart) {
     forceSpindleSpeed = false;
 
+    //maxSpindleSpeed Anton
+    newSpindleSpeed = tool.spindleRPM; //anton
+    
+
     if (spindleSpeed < 1) {
       error(localize("Spindle speed out of range."));
       return;
     }
-    if (spindleSpeed > 99999) {
-      warning(localize("Spindle speed exceeds maximum value."));
+    
+    if (tool.spindleRPM > properties.maxSpindleSpeed) {      
+      newSpindleSpeed = properties.maxSpindleSpeed; //anton
+      writeWords("   ( S" + tool.spindleRPM + " )"); //sukiai pagal iranki Anton
+      // warning(localize("Spindle speed exceeds maximum  value."));
     }
     skipBlock = !spindleChanged;
+    // var speedKoef = tool.spindleRPM / properties.maxSpindleSpeed;
     writeBlock(
-      sOutput.format(spindleSpeed), mFormat.format(tool.clockwise ? 3 : 4)
+      sOutput.format(newSpindleSpeed), mFormat.format(tool.clockwise ? 3 : 4)
     );
+    // writeComment(speedKoef);
+  //   if (spindleSpeed > 99999) {
+  //     warning(localize("Spindle speed exceeds maximum value ."));
+  //   }
+  //   writeBlock(
+  //     sOutput.format(spindleSpeed), mFormat.format(tool.clockwise ? 3 : 4)
+  //   );
   }
   
   if (properties.useParametricFeed &&
@@ -1724,10 +1772,12 @@ function onDwell(seconds) {
   seconds = clamp(0.001, seconds, 99999.999);
   writeBlock(gFeedModeModal.format(properties.useG95 ? 95 : 94), gFormat.format(4), "P" + milliFormat.format(seconds * 1000));
 }
-
-function onSpindleSpeed(spindleSpeed) {
-  writeBlock(sOutput.format(spindleSpeed));
-}
+// function onSpindleSpeed(spindleSpeed) { // anton RAMP SPINDLE SPEED OFF!!!!
+//   if(properties.maxSpindleSpeed < spindleSpeed){
+//     spindleSpeed = properties.maxSpindleSpeed;
+//   }
+//   writeBlock(sOutput.format(spindleSpeed));
+// }
 
 function onCycle() {
   writeBlock(gPlaneModal.format(17));
@@ -1904,9 +1954,13 @@ function onCyclePoint(x, y, z) {
       repositionToCycleClearance(cycle, x, y, z);
     }
     
-    var F = cycle.feedrate;
+    var F = cycle.feedrate; //kazkas cia maxspindlespeed ANTON 
     if (properties.useG95) { //anton
       F /= spindleSpeed; //anton
+    }
+    if (spindleSpeed > properties.maxSpindleSpeed && !properties.useG95){ //anton
+      koef = spindleSpeed / properties.maxSpindleSpeed;
+      F /= koef;
     }
     var P = !cycle.dwell ? 0 : clamp(1, cycle.dwell * 1000, 99999999); // in milliseconds
 
@@ -1973,9 +2027,15 @@ function onCyclePoint(x, y, z) {
       break;
     case "tapping":
       var tappingFPM = tool.getThreadPitch() * rpmFormat.getResultingValue(spindleSpeed);
-      F = (properties.useG95forTapping ? tool.getThreadPitch() : tappingFPM);
+      if (spindleSpeed > properties.maxSpindleSpeed){ //anton
+        koef = spindleSpeed / properties.maxSpindleSpeed;
+        tappingFPM /= koef;
+      }
+            F = (properties.useG95forTapping || properties.useG95 ? tool.getThreadPitch() : tappingFPM);
       if (properties.useG95forTapping) {
         writeBlock(gFeedModeModal.format(95));
+      // } else { //anton
+      //   writeBlock(gFeedModeModal.format(94)); //anton
       }
       writeBlock(
         gRetractModal.format(98), gCycleModal.format((tool.type == TOOL_TAP_LEFT_HAND) ? 74 : 84),
@@ -1986,7 +2046,11 @@ function onCyclePoint(x, y, z) {
       break;
     case "left-tapping":
       var tappingFPM = tool.getThreadPitch() * rpmFormat.getResultingValue(spindleSpeed);
-      F = (properties.useG95forTapping ? tool.getThreadPitch() : tappingFPM);
+      if (spindleSpeed > properties.maxSpindleSpeed){ //anton
+        koef = spindleSpeed / properties.maxSpindleSpeed;
+        tappingFPM /= koef;
+      }
+      F = (properties.useG95forTapping || properties.useG95 ? tool.getThreadPitch() : tappingFPM);
       if (properties.useG95forTapping) {
         writeBlock(gFeedModeModal.format(95));
       }
@@ -1999,7 +2063,11 @@ function onCyclePoint(x, y, z) {
       break;
     case "right-tapping":
       var tappingFPM = tool.getThreadPitch() * rpmFormat.getResultingValue(spindleSpeed);
-      F = (properties.useG95forTapping ? tool.getThreadPitch() : tappingFPM);
+      if (spindleSpeed > properties.maxSpindleSpeed){ //anton
+        koef = spindleSpeed / properties.maxSpindleSpeed;
+        tappingFPM /= koef;
+      }
+      F = (properties.useG95forTapping || properties.useG95 ? tool.getThreadPitch() : tappingFPM);
       if (properties.useG95forTapping) {
         writeBlock(gFeedModeModal.format(95));
       }
@@ -2014,7 +2082,11 @@ function onCyclePoint(x, y, z) {
     case "left-tapping-with-chip-breaking":
     case "right-tapping-with-chip-breaking":
       var tappingFPM = tool.getThreadPitch() * rpmFormat.getResultingValue(spindleSpeed);
-      F = (properties.useG95forTapping ? tool.getThreadPitch() : tappingFPM);
+      if (spindleSpeed > properties.maxSpindleSpeed){ //anton
+        koef = spindleSpeed / properties.maxSpindleSpeed;
+        tappingFPM /= koef;
+      }
+      F = (properties.useG95forTapping || properties.useG95 ? tool.getThreadPitch() : tappingFPM);
       if (properties.useG95forTapping) {
         writeBlock(gFeedModeModal.format(95));
       }
@@ -3190,7 +3262,7 @@ function onSectionEnd() {
     inspectionProcessSectionEnd();
   }
   if (!isLastSection() && (getNextSection().getTool().coolant != tool.coolant)) {
-    setCoolant(COOLANT_OFF);
+    // setCoolant(COOLANT_OFF); //anton coolant off
   }
   if ((((getCurrentSectionId() + 1) >= getNumberOfSections()) ||
       (tool.number != getNextSection().getTool().number)) &&
@@ -3340,7 +3412,7 @@ function onClose() {
   // onCommand(COMMAND_COOLANT_OFF);
 
   // retract
-  writeln("  G0 Z250.");
+  writeln("  G0 Z150.");
   writeln("");
 
   // writeRetract(Z); // Anton Z0
@@ -3350,7 +3422,7 @@ function onClose() {
   setWorkPlane(new Vector(0, 0, 0)); // reset working plane
   writeBlock(gRotationModal.format(69));
 
-  writeRetract(X, Y);
+  writeRetract(Y); // istrintas X - Anton
 
   onImpliedCommand(COMMAND_END);
   onImpliedCommand(COMMAND_STOP_SPINDLE);

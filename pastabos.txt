@@ -1,0 +1,69 @@
+//g10 l12:
+  if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
+      writeBlock(gFormat.format(10), "L12" + " P" + tool.diameterOffset + " R" + tool.cornerRadius);
+    }
+
+  if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
+    writeBlock(gFormat.format(90), gFormat.format(10),
+    "L12" + " P" + tool.diameterOffset + " R" + xyzFormat.format(tool.diameter/2));
+    }
+
+  if (machineConfiguration.isMultiAxisConfiguration()) {
+    for (var i = 0; i < getNumberOfSections(); ++i) {
+      var abc = getWorkPlaneMachineABC(getSection(i).workPlane);
+      writeComment(
+        "OP" + (i + 1) + ": " +
+        conditional(machineConfiguration.isMachineCoordinate(0), "A" + abcFormat.format(abc.x)) +
+        conditional(machineConfiguration.isMachineCoordinate(1), "B" + abcFormat.format(abc.y)) +
+        conditional(machineConfiguration.isMachineCoordinate(2), "C" + abcFormat.format(abc.z))
+      );
+    }
+    currentMachineABC = undefined; // make sure we restart from the initial orientation
+  }
+
+//autobazes:
+    for (var i = 0; i < 5; ++i) {
+        gMotionModal.reset();
+        writeBlock(gFormat.format(10), "L2", "P" + i, gMotionModal.format(90), "X0 Y? Z?", (i > 0 ? "(" + gFormat.format(53 + i) + ")" : ""));
+    }
+
+//list of abc in start of program:
+
+
+
+  if (machineConfiguration.isMultiAxisConfiguration()) {
+    for (var i = 0; i < getNumberOfSections(); ++i) {
+      var abc = getWorkPlaneMachineABC(getSection(i).workPlane);
+      writeComment(
+        "OP" + (i + 1) + ": " +
+        conditional(machineConfiguration.isMachineCoordinate(0), "A" + abcFormat.format(abc.x)) +
+        conditional(machineConfiguration.isMachineCoordinate(1), "B" + abcFormat.format(abc.y)) +
+        conditional(machineConfiguration.isMachineCoordinate(2), "C" + abcFormat.format(abc.z))
+      );
+    }
+    currentMachineABC = undefined; // make sure we restart from the initial orientation
+  }
+
+//date time
+  // date - Rud 
+  var date = new Date(); 
+  var dateString = "(DATE - " + date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear(); 
+  writeComment(dateString);
+    
+  // time- Rud
+  var timeString = "(TIME - " + date.getHours() + "H" + date.getMinutes() + " S" + date.getSeconds();
+  writeComment(timeString);
+
+  //file name short version - Rud 
+    //var documentPath = getGlobalParameter("document-path");
+    //writeComment(documentPath);
+    
+  //file name long version - Rud
+    var documentString = "(CAD FILE  " + getGlobalParameter("document-path");
+    writeComment(documentString);
+
+
+
+
+
+

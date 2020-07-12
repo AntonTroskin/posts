@@ -42,6 +42,10 @@ properties = {
   writeMachine: true, // write machine
   writeTools: true, // writes the tools
   preloadTool: true, // preloads next tool on tool change if any
+  autoBazes: true,
+  xOffset:"0", // enter X-offset value for output in G10 block 
+  yOffset:"0", // enter Y-offset value for output in G10 block 
+  zOffset:"0", // enter Z-offset value for output in G10 block 
   showSequenceNumbers: false, // show sequence numbers
   sequenceNumberStart: 10, // first sequence number
   sequenceNumberIncrement: 5, // increment for sequence numbers
@@ -65,8 +69,8 @@ properties = {
 
 // user-defined property definitions
 propertyDefinitions = {
-  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:0, type:"boolean"},
-  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:0, type:"boolean"},
+  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:1, type:"boolean"},
+  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:1, type:"boolean"},
   preloadTool: {title:"Preload tool", description:"Preloads the next tool at a tool change (if any).", group:1, type:"boolean"},
   showSequenceNumbers: {title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", group:1, type:"boolean"},
   sequenceNumberStart: {title:"Start sequence number", description:"The number at which to start the sequence numbers.", group:1, type:"integer"},
@@ -77,6 +81,10 @@ propertyDefinitions = {
   useRadius: {title:"Radius arcs", description:"If yes is selected, arcs are outputted using radius values rather than IJK.", type:"boolean"},
   useParametricFeed:  {title:"Parametric feed", description:"Specifies the feed value that should be output using a Q value.", type:"boolean"},
   showNotes: {title:"Show notes", description:"Writes operation notes as comments in the outputted code.", type:"boolean"},
+  autoBazes: {title:"Automatines bazes", description:"Iraso bloka G10 L2 P  X  Y  Z ", group:0, type:"boolean"},
+  xOffset:{title:"X Offset", description:"Value for X workoffset", group:0, type:"string"}, // xOffset - Anton
+  yOffset:{title:"Y Offset", description:"Value for Y workoffset", group:0, type:"string"}, // yOffset - Anton
+  zOffset:{title:"Z Offset", description:"Value for Z workoffset", group:0, type:"string"}, // zOffset - Anton
   useAAxis: {title: "Use A-axis", description: "Specifies whether to use the A axis.", type: "boolean"},
   useTrunnion: {title: "Use AC-trunnion", description: "Enables a trunnion table with an A and C-axis.", type: "boolean"},
   probingType: {title: "Probing type", description: "Specified what probing cycles are used on the machine.", type: "enum", values: [{title: "Renishaw", id: "Renishaw"}, {title: "Blum", id: "Blum"}]},
@@ -157,7 +165,7 @@ var jOutput = createReferenceVariable({prefix:"J"}, xyzFormat);
 var kOutput = createReferenceVariable({prefix:"K"}, xyzFormat);
 
 var gMotionModal = createModal({force:true}, gFormat); // modal group 1 // G0-G3, ...
-var gPlaneModal = createModal({onchange:function () {gMotionModal.reset();}}, gFormat); // modal group 2 // G17-19
+var gPlaneModal = createModal({onchange:function () {gMotionModal.reset();}, force:false}, gFormat); // modal group 2 // G17-19 ----- force:false Anton
 var gAbsIncModal = createModal({}, gFormat); // modal group 3 // G90-91
 var gFeedModeModal = createModal({}, gFormat); // modal group 5 // G94-95
 var gUnitModal = createModal({}, gFormat); // modal group 6 // G20-21
@@ -349,13 +357,22 @@ function onOpen() {
   }
   //automatines bazes
 
-for (var i = 0; i < 5; ++i) {
-    gMotionModal.reset();
-    writeBlock(gFormat.format(10), "L2", "P" + i, gMotionModal.format(90), "X0 Y? Z?", (i > 0 ? "(" + gFormat.format(53 + i) + ")" : ""));
+// for (var i = 1; i < 5; ++i) {
+//     gMotionModal.reset();
+//     writeBlock(gFormat.format(10), "L2", "P" + i, gMotionModal.format(90), "X-50 Y-50 Z200", (i > 0 ? "(" + gFormat.format(53 + i) + ")" : ""));
+// }
+
+
+//G10 L2 P X Y Z offset - Anton
+if (properties.autoBazes) {
+  var workOffset = getSection(0).workOffset;
+  workOffset = workOffset == 0 ? 1 : workOffset;
+   var xoffset = parseFloat(properties.xOffset);
+   var yoffset = parseFloat(properties.yOffset);
+   var zoffset = parseFloat(properties.zOffset);
+  writeWords("G10 L2 P" + workOffset + " X" + xyzFormat.format(xoffset) + " Y" + xyzFormat.format(yoffset) + " Z" + xyzFormat.format(zoffset));
+  writeln("")
 }
-  writeln("")
-  writeWords("G10 L2 P1 X-50 Y-50 Z300");
-  writeln("")
 
 //Anton irankiu lentele
 
@@ -1263,9 +1280,9 @@ function onDwell(seconds) {
   writeBlock(gFeedModeModal.format(94), gFormat.format(4), "P" + secFormat.format(seconds));
 }
 
-function onSpindleSpeed(spindleSpeed) {
-  writeBlock(sOutput.format(spindleSpeed));
-}
+// function onSpindleSpeed(spindleSpeed) {
+//   writeBlock(sOutput.format(spindleSpeed));
+// }
 
 function onCycle() {
   writeBlock(gPlaneModal.format(17));

@@ -46,6 +46,11 @@ properties = {
   writeMachine: true, // write machine
   writeTools: true, // writes the tools
   preloadTool: false, // preloads next tool on tool change if any
+  maxSpindleSpeed:12000, //max Spindle Speed
+  autoBazes: true,
+  xOffset:"120.05", // enter X-offset value for output in G10 block 
+  yOffset:"41.35", // enter Y-offset value for output in G10 block 
+  zOffset:"-100.0", // enter Z-offset value for output in G10 block 
   showSequenceNumbers: false, // show sequence numbers
   sequenceNumberStart: 10, // first sequence number
   sequenceNumberIncrement: 1, // increment for sequence numbers
@@ -65,9 +70,14 @@ properties = {
 
 // user-defined property definitions
 propertyDefinitions = {
-  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:0, type:"boolean"},
-  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:0, type:"boolean"},
+  writeMachine: {title:"Write machine", description:"Output the machine settings in the header of the code.", group:1, type:"boolean"},
+  writeTools: {title:"Write tool list", description:"Output a tool list in the header of the code.", group:1, type:"boolean"},
   preloadTool: {title:"Preload tool", description:"Preloads the next tool at a tool change (if any).", type:"boolean"},
+  maxSpindleSpeed:{title:"max Spindle Speed", description:"Value for S", group:0, type:"integer"},
+  autoBazes: {title:"Automatines bazes", description:"Iraso bloka G10 L2 P  X  Y  Z ", group:0, type:"boolean"},
+  xOffset:{title:"X Offset", description:"Value for X workoffset", group:0, type:"string"}, // xOffset - Anton
+  yOffset:{title:"Y Offset", description:"Value for Y workoffset", group:0, type:"string"}, // yOffset - Anton
+  zOffset:{title:"Z Offset", description:"Value for Z workoffset", group:0, type:"string"}, // zOffset - Anton
   showSequenceNumbers: {title:"Use sequence numbers", description:"Use sequence numbers for each block of outputted code.", group:1, type:"boolean"},
   sequenceNumberStart: {title:"Start sequence number", description:"The number at which to start the sequence numbers.", group:1, type:"integer"},
   sequenceNumberIncrement: {title:"Sequence number increment", description:"The amount by which the sequence number is incremented by in each block.", group:1, type:"integer"},
@@ -241,9 +251,7 @@ function onOpen() {
   // }
   // writeln("; %_N_" + translateText(String(programName).toUpperCase(), " ", "_") + "_MPF");
   
-  if (programComment) {
-    writeComment(programComment);
-  }
+
 
   
   if (true) {
@@ -282,6 +290,9 @@ function onOpen() {
     writeComment("DMG:   " + d.toLocaleDateString() + " " +
     d.toLocaleTimeString());  
     writeln("")
+  }
+  if (programComment) {
+    writeComment(programComment);
   }
 
 
@@ -363,10 +374,21 @@ function onOpen() {
   }
 
   //autobazes anton 
+
+  //G10 L2 P X Y Z offset - Anton
+if (properties.autoBazes) {
+  var workOffset = getSection(0).workOffset;
+  workOffset = workOffset == 0 ? 1 : workOffset;
+   var xoffset = parseFloat(properties.xOffset);
+   var yoffset = parseFloat(properties.yOffset);
+   var zoffset = parseFloat(properties.zOffset);
+  writeln("");
+  writeln("$P_UIFR[1,X,TR]=" + xyzFormat.format(xoffset));
+  writeln("$P_UIFR[1,Y,TR]=" + xyzFormat.format(yoffset));
+  writeln("$P_UIFR[1,Z,TR]="+ xyzFormat.format(zoffset));
   writeln("")
-  writeln("$P_UIFR[1,X,TR]=120.05")
-  writeln("$P_UIFR[1,Y,TR]=41.35")
-  writeln("$P_UIFR[1,Z,TR]=-100.0")
+}
+
   writeln("")
   writeln("BEGIN:")
   writeln("")
@@ -1139,7 +1161,7 @@ function onSection() {
   if (insertToolCall) {
     forceWorkPlane();
 
-    onCommand(COMMAND_COOLANT_OFF);
+    // onCommand(COMMAND_COOLANT_OFF);
   
     if (!isFirstSection() && properties.optionalStop) {
       onCommand(COMMAND_OPTIONAL_STOP);
@@ -1242,7 +1264,7 @@ function onSection() {
       writeBlock("CYCLE832()");
     }
   }
-  
+  //anton maxSpindleSpeed
   if ((insertToolCall ||
        forceSpindleSpeed ||
        isFirstSection() ||
@@ -1250,17 +1272,24 @@ function onSection() {
        (tool.clockwise != getPreviousSection().getTool().clockwise)) &&
       !isProbeOperation()) {
     forceSpindleSpeed = false;
+    newSpindleSpeed = tool.spindleRPM; //anton
     
     if (tool.spindleRPM < 1) {
-      error(localize("Spindle speed out of range."));
+      error(localize("Spindle speed out of  range."));
       return;
     }
-    if (tool.spindleRPM > 99999) {
-      warning(localize("Spindle speed exceeds maximum value."));
+    
+    if (tool.spindleRPM > properties.maxSpindleSpeed) {
+      newSpindleSpeed = properties.maxSpindleSpeed; //anton
+      writeComment("S" + tool.spindleRPM); //sukiai pagal iranki Anton
+      // warning(localize("Spindle speed exceeds maximum value."));
     }
     writeBlock(
-      sOutput.format(tool.spindleRPM), mFormat.format(tool.clockwise ? 3 : 4)
+      sOutput.format(newSpindleSpeed), mFormat.format(tool.clockwise ? 3 : 4)
     );
+    // writeBlock( //original
+    //   sOutput.format(tool.spindleRPM), mFormat.format(tool.clockwise ? 3 : 4)
+    // );
   }
 
   // wcs
@@ -1433,9 +1462,9 @@ function onDwell(seconds) {
   }
 }
 
-function onSpindleSpeed(spindleSpeed) {
-  writeBlock(sOutput.format(spindleSpeed));
-}
+// function onSpindleSpeed(spindleSpeed) {
+//   writeBlock(sOutput.format(spindleSpeed));
+// }
 
 var expandCurrentCycle = false;
 
@@ -3080,7 +3109,7 @@ function onClose() {
 
   setWorkPlane(new Vector(0, 0, 0), true); // reset working plane
 
-  writeln("G0 Z200.0 M5 M9");
+  writeln("G0 Z200.0 M5");
 
 
   if (properties.homeXYAtEnd) {
