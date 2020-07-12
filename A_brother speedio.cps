@@ -363,6 +363,21 @@ function onOpen() {
 // }
 
 
+//asiu pavertimai pradzioje (Anton )
+if (false && machineConfiguration.isMultiAxisConfiguration()) {
+  for (var i = 0; i < getNumberOfSections(); ++i) {
+    var abc = getWorkPlaneMachineABC(getSection(i).workPlane);
+    writeComment(
+      "OP" + (i + 1) + ": " +
+      conditional(machineConfiguration.isMachineCoordinate(0), "A" + abcFormat.format(abc.x)) +
+      conditional(machineConfiguration.isMachineCoordinate(1), "B" + abcFormat.format(abc.y)) +
+      conditional(machineConfiguration.isMachineCoordinate(2), "C" + abcFormat.format(abc.z))
+    );
+  }
+  currentMachineABC = undefined; // make sure we restart from the initial orientation
+}
+
+
 //G10 L2 P X Y Z offset - Anton
 if (properties.autoBazes) {
   var workOffset = getSection(0).workOffset;
