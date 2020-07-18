@@ -9,6 +9,8 @@
 
   $Revision: 42831 17c7160294bbeecc46faa18c5e7a2c703384f949 $
   $Date: 2020-06-18 05:04:27 $
+
+  increment testas
   
   FORKID {241E0993-8BE0-463b-8888-47968B9D7F9F}
 */
@@ -45,7 +47,7 @@ properties = {
   writeTools: true, // writes the tools
   writeVersion: false, // include version info
   preloadTool: true, // preloads next tool on tool change if any
-  maxSpindleSpeed:15000, //max Spindle speed
+  maxSpindleSpeed:1000, //max Spindle speed
   autoBazes: true,
   xOffset:"0", // enter X-offset value for output in G10 block 
   yOffset:"0", // enter Y-offset value for output in G10 block 
@@ -62,8 +64,8 @@ properties = {
   showNotes: true, // specifies that operation notes should be output
   useG0: true, // allow G0 when moving along more than one axis
   useG28: false, // specifies that G28 should be used instead of G53
-  useSubroutines: false, // specifies that subroutines should be generated
-  useSubroutinePatterns: false, // generates subroutines for patterned operation
+  useSubroutines: true, // specifies that subroutines should be generated
+  useSubroutinePatterns: true, // generates subroutines for patterned operation
   useSubroutineCycles: false, // generates subroutines for cycle operations on same holes
   useG187: false, // use G187 to set smoothing on the machine
   homePositionCenter: false, // moves the part in X in center of the door at end of program (ONLY WORKS IF THE TABLE IS MOVING)
@@ -248,7 +250,7 @@ function writeBlock() { //anton
         writeWords(" /", "N" + sequenceNumber, text);
       }
     } else {
-      writeWords2(" N" + sequenceNumber, arguments);
+      writeWords2("N" + sequenceNumber, arguments);
     }
     sequenceNumber += properties.sequenceNumberIncrement;
   } else {
@@ -280,14 +282,14 @@ function writeOptionalBlock() {
 }
 
 function formatComment(text) {
-  return "(" + String(text).replace(/[()]/g, "") + ")";
+  return " (" + String(text).replace(/[()]/g, "") + ")";
 }
 
 /**
   Output a comment.
 */
 function writeComment(text) {
-  writeln(formatComment(text.substr(0, maximumLineLength - 2)).toUpperCase()); //anton .toUpperCase()
+  writeln(formatComment(text.substr(0, maximumLineLength - 2))/*.toUpperCase()*/); //anton .toUpperCase()
 }
 
 /**
@@ -488,7 +490,7 @@ function onOpen() {
 
       //Anton PROGRAMOS DATA
     var d = new Date(); // output current date and time
-    writeComment("haas:   " + d.toLocaleDateString() + " " +
+    writeComment("HAAS:   " + d.toLocaleDateString() + " " +
     d.toLocaleTimeString());  
     writeln("")
   }
@@ -562,7 +564,7 @@ if (properties.autoBazes) {
     if (tools.getNumberOfTools() > 0) {
       for (var i = 0; i < getNumberOfSections(); ++i) {
         var sectioniii = getSection(i);
-        var tool = sectioniii.getTool();
+        var tool = sectioniii.getTool();        
         var comment = "T" + toolFormat.format(tool.number);
         comment += "   D=" + xyzFormat.format(tool.diameter); // + " H=" + xyzFormat.format(tool.bodyLength);    
         if (zRanges[tool.number]) {
@@ -1434,6 +1436,37 @@ function onSection() {
       setWorkPlane(new Vector(0, 0, 0)); // reset working plane
     }
   }
+  // here
+  // if (hasParameter("operation-comment")) { //anton opZmin    
+  //   var opZmin = "   Zmin=" + xyzFormat.format(currentSection.getGlobalZRange().getMinimum());    
+  //   var comment = getParameter("operation-comment");
+  //   if (comment && ((comment !== lastOperationComment) || !patternIsActive || insertToolCall)) {
+  //     // writeln("");
+  //     writeWords(" (OP:  " + comment + opZmin + ")"); //anton
+  //     lastOperationComment = comment;
+  //   } else if (!patternIsActive || insertToolCall) {
+  //     writeln("");
+  //   }
+  // } else {
+  //   writeln("");
+  // }
+
+  // if (properties.showNotes && hasParameter("notes")) {
+  //   var notes = getParameter("notes");
+  //   if (notes) {
+  //     var lines = String(notes).split("\n");
+  //     var r1 = new RegExp("^[\\s]+", "g");
+  //     var r2 = new RegExp("[\\s]+$", "g");
+  //     for (line in lines) {
+  //       var comment = lines[line].replace(r1, "").replace(r2, "");
+  //       if (comment) {
+  //         writeWords("  (PASTABA: " + comment + " )");
+  //       }
+  //     }
+  //   }
+  // }
+
+
 
 
   
@@ -1461,9 +1494,9 @@ function onSection() {
       forceWorkPlane();
     }
   
-    if (!isFirstSection() && properties.optionalStop && insertToolCall) {
-      onCommand(COMMAND_OPTIONAL_STOP);
-    }
+    // if (!isFirstSection() && properties.optionalStop && insertToolCall) {
+    //   onCommand(COMMAND_OPTIONAL_STOP);
+    // }
 
     if ((tool.number > 200 && tool.number < 1000) || tool.number > 9999) {
       warning(localize("Tool number out of range."));
@@ -1488,64 +1521,64 @@ function onSection() {
           }
           zRange.expandToRange(section.getGlobalZRange());
         }
-        writeComment(tool.description + "    D=" + xyzFormat.format(tool.diameter) + "   ZMIN=" + xyzFormat.format(zRange.getMinimum()));
+        var toolInfo = "(" + "D=" + xyzFormat.format(tool.diameter) + "  ZMIN=" + xyzFormat.format(zRange.getMinimum()) + "   - " + tool.description + ")"; 
       }
     }
-    // korektorius ANTON
-
-    // if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
-    //   writeBlock(gFormat.format(10), "L12" + " P" + tool.diameterOffset + " R" + tool.cornerRadius);
-    // }
-    if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
-      // writeBlock(gFormat.format(90), gFormat.format(10),
-      // "L12" + " P" + tool.diameterOffset + " R" + xyzFormat.format(tool.diameter/2));
-      writeWords(" M1  ( DIAMETRO KORKTORIUS )")
-    }
-
-    if (hasParameter("operation-comment")) { //anton
-        var comment = getParameter("operation-comment");
-        if (comment && ((comment !== lastOperationComment) || !patternIsActive || insertToolCall)) {
-          // writeln("");
-          writeWords(" (OP:  " + comment + ")"); //anton
-          lastOperationComment = comment;
-        } else if (!patternIsActive || insertToolCall) {
-          writeln("");
-        }
-      } else {
-        writeln("");
-    }
-
-    if (properties.showNotes && hasParameter("notes")) {
-      var notes = getParameter("notes");
-      if (notes) {
-        var lines = String(notes).split("\n");
-        var r1 = new RegExp("^[\\s]+", "g");
-        var r2 = new RegExp("[\\s]+$", "g");
-        for (line in lines) {
-          var comment = lines[line].replace(r1, "").replace(r2, "");
-          if (comment) {
-            writeWords("  (PASTABA: " + comment + " )");
-          }
-        }
-      }
-    }
-
-
 
    writeToolBlock(
         "T" + toolFormat.format(tool.number),
-        mFormat.format(6));
+        mFormat.format(6),
+        toolInfo);
     }
     if (measureTool) {
       writeToolMeasureBlock(tool);
     }
+
+    if (!isFirstSection() && properties.optionalStop && insertToolCall) {
+      onCommand(COMMAND_OPTIONAL_STOP);
+    }
+  }
+  if (hasParameter("operation-comment")) { //anton opZmin     
+    var opZmin = "   Zmin=" + xyzFormat.format(currentSection.getGlobalZRange().getMinimum());    
+    var comment = getParameter("operation-comment");
+    if (comment && ((comment !== lastOperationComment) || !patternIsActive || insertToolCall)) {
+      // writeln("");
+      writeComment("(" + comment + opZmin + ")"); //anton
+      lastOperationComment = comment;
+    } else if (!patternIsActive || insertToolCall) {
+      writeln("");
+    }
+  } else {
+    writeln("");
+  }
+
+  if (properties.showNotes && hasParameter("notes")) {
+    var notes = getParameter("notes");
+    if (notes) {
+      var lines = String(notes).split("\n");
+      var r1 = new RegExp("^[\\s]+", "g");
+      var r2 = new RegExp("[\\s]+$", "g");
+      for (line in lines) {
+        var comment = lines[line].replace(r1, "").replace(r2, "");
+        if (comment) {
+          writeWords("  (PASTABA: " + comment + " )");
+        }
+      }
+    }
+  }
+
+  if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
+    // writeBlock(gFormat.format(90), gFormat.format(10),
+    // "L12" + " P" + tool.diameterOffset + " R" + xyzFormat.format(tool.diameter/2));
+    writeWords(" M1  ( DIAMETRO KORKTORIUS )") //anton
   }
 
 
 
+
   
   
-  // activate those two coolant modes before the spindle is turned on
+  // activate those two coolant modes before the spindle is turned on 
   if ((tool.coolant == COOLANT_THROUGH_TOOL) || (tool.coolant == COOLANT_AIR_THROUGH_TOOL) || (tool.coolant == COOLANT_FLOOD_THROUGH_TOOL)) {
     if (!isFirstSection() && !insertToolCall && (currentCoolantMode != tool.coolant)) {
       onCommand(COMMAND_STOP_SPINDLE);
