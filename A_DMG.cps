@@ -8,6 +8,7 @@
 
   #TODO MCALL Ciklai
   anton: LABEL, IRANKIU APRASYMAS ZMIN, OPZMIN
+  istrinti irankiu dublikatai
 
   $Revision: 41757 c26015439a1ddd19e2ba12a92d1f6f285cc9892d $
   $Date: 2017-12-20 11:03:56 $
@@ -198,6 +199,16 @@ function writeComment(text) {
   }
 }
 
+function removeDups(names) {
+  let unique = {};
+  names.forEach(function(i) {
+    if(!unique[i]) {
+      unique[i] = true;
+    }
+  });
+  return Object.keys(unique);
+}
+
 function onOpen() {
 
   if (false) { //anton true
@@ -340,7 +351,8 @@ function onOpen() {
     var tools = getToolTable();
     //    Anton lentele pradzioje pagal seka
     if (tools.getNumberOfTools() > 0) {
-      for (var i = 0; i < getNumberOfSections(); ++i) {
+      var irankiai = [];
+      for (var i = 0; i < getNumberOfSections(); ++i) {        
         var sectioniii = getSection(i);
         var tool = sectioniii.getTool();
         var comment = "" //"T" + toolFormat.format(tool.number);
@@ -351,15 +363,24 @@ function onOpen() {
         if (zRanges[tool.number]) {
           comment += "   Zmin=" + xyzFormat.format(zRanges[tool.number].getMinimum());
         }
-
         // if ((tool.taperAngle > 0) && (tool.taperAngle < Math.PI)) {
         //   comment += " " + localize("- K") + "=" + taperFormat.format(tool.taperAngle) + localize("deg");
         // } 
         // if (tool.cornerRadius > 0) {
         //   comment += " - " + localize("CR") + "=" + xyzFormat.format(tool.cornerRadius); 
         // }          
-        writeComment(comment);
+        // writeComment(comment);
+        irankiai.push(comment)
       }
+      var lines = String(removeDups(irankiai)).split(",");
+      for (line in lines) {
+        var comment = lines[line];
+        if (comment) {
+          writeComment(comment);
+        }
+      }
+
+
     }
   }
 

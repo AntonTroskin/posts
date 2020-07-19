@@ -5,8 +5,9 @@
   ANTON EDITION: added configuration
   07/12/2020 - major changes: added autobase, max spindle
   07/18/2020 - tool comment ontoolchange, opZmin
+  istrinti irankiu dublikatai
 
-  HAAS post processor configuration.
+  HAAS post processor configuration. 
 
   $Revision: 42831 17c7160294bbeecc46faa18c5e7a2c703384f949 $
   $Date: 2020-06-18 05:04:27 $
@@ -291,6 +292,16 @@ function writeComment(text) {
   writeln(formatComment(text.substr(0, maximumLineLength - 2))/*.toUpperCase()*/); //anton .toUpperCase()
 }
 
+function removeDups(names) {
+  let unique = {};
+  names.forEach(function(i) {
+    if(!unique[i]) {
+      unique[i] = true;
+    }
+  });
+  return Object.keys(unique);
+}
+
 /**
   Returns the matching HAAS tool type for the tool.
 */
@@ -561,24 +572,35 @@ if (properties.autoBazes) {
     var tools = getToolTable();
     //    Anton lentele pradzioje pagal seka
     if (tools.getNumberOfTools() > 0) {
+      var irankiai = [];
       for (var i = 0; i < getNumberOfSections(); ++i) {
         var sectioniii = getSection(i);
         var tool = sectioniii.getTool();        
         var comment = "T" + toolFormat.format(tool.number);
         comment += "   D=" + xyzFormat.format(tool.diameter); // + " H=" + xyzFormat.format(tool.bodyLength);    
         if (zRanges[tool.number]) {
-          comment += "     " + localize("Zmin") + "=" + xyzFormat.format(zRanges[tool.number].getMinimum());
+          comment += "     Zmin=" + xyzFormat.format(zRanges[tool.number].getMinimum());
         }
         if (tool.description) {
           comment += "    - " + tool.description;
+          //  + "; F=" + tool.feed_cutting;
         }
+        // comment +=";   S=" + tool.spindleRPM.toFixed(0);
         // if ((tool.taperAngle > 0) && (tool.taperAngle < Math.PI)) {
-        //   comment += " " + localize("- K") + "=" + taperFormat.format(tool.taperAngle) + localize("deg");
+        //   comment += "  " + localize("- K") + "=" + taperFormat.format(tool.taperAngle) + localize("deg");
         // } 
         // if (tool.cornerRadius > 0) {
-        //   comment += " - " + localize("CR") + "=" + xyzFormat.format(tool.cornerRadius); 
+        //   comment += " - " + localize("CR") + " =" + xyzFormat.format(tool.cornerRadius); 
         // }          
-        writeComment(comment);
+        // writeComment(comment); 
+        irankiai.push(comment)
+      }  
+      var lines = String(removeDups(irankiai)).split(",");
+      for (line in lines) {
+        var comment = lines[line];
+        if (comment) {
+          writeComment(comment);
+        }
       }
     }
   }
@@ -1570,13 +1592,8 @@ function onSection() {
   if (hasParameter("operation:compensationType") && (getParameter("operation:compensationType") == "control")) {
     // writeBlock(gFormat.format(90), gFormat.format(10),
     // "L12" + " P" + tool.diameterOffset + " R" + xyzFormat.format(tool.diameter/2));
-    writeWords(" M1  ( DIAMETRO KORKTORIUS )") //anton
+    writeWords("M1  ( DIAMETRO KORKTORIUS )") //anton 
   }
-
-
-
-
-  
   
   // activate those two coolant modes before the spindle is turned on 
   if ((tool.coolant == COOLANT_THROUGH_TOOL) || (tool.coolant == COOLANT_AIR_THROUGH_TOOL) || (tool.coolant == COOLANT_FLOOD_THROUGH_TOOL)) {
