@@ -4,13 +4,12 @@
 
   ANTON EDITION: added configuration
   07/12/2020 - major changes: added autobase, max spindle
+  07/18/2020 - tool comment ontoolchange, opZmin
 
   HAAS post processor configuration.
 
   $Revision: 42831 17c7160294bbeecc46faa18c5e7a2c703384f949 $
   $Date: 2020-06-18 05:04:27 $
-
-  increment testas
   
   FORKID {241E0993-8BE0-463b-8888-47968B9D7F9F}
 */
@@ -47,7 +46,7 @@ properties = {
   writeTools: true, // writes the tools
   writeVersion: false, // include version info
   preloadTool: true, // preloads next tool on tool change if any
-  maxSpindleSpeed:1000, //max Spindle speed
+  maxSpindleSpeed:15000, //max Spindle speed
   autoBazes: true,
   xOffset:"0", // enter X-offset value for output in G10 block 
   yOffset:"0", // enter Y-offset value for output in G10 block 
@@ -64,8 +63,8 @@ properties = {
   showNotes: true, // specifies that operation notes should be output
   useG0: true, // allow G0 when moving along more than one axis
   useG28: false, // specifies that G28 should be used instead of G53
-  useSubroutines: true, // specifies that subroutines should be generated
-  useSubroutinePatterns: true, // generates subroutines for patterned operation
+  useSubroutines: false, // specifies that subroutines should be generated
+  useSubroutinePatterns: false, // generates subroutines for patterned operation
   useSubroutineCycles: false, // generates subroutines for cycle operations on same holes
   useG187: false, // use G187 to set smoothing on the machine
   homePositionCenter: false, // moves the part in X in center of the door at end of program (ONLY WORKS IF THE TABLE IS MOVING)
@@ -1536,6 +1535,7 @@ function onSection() {
 
     if (!isFirstSection() && properties.optionalStop && insertToolCall) {
       onCommand(COMMAND_OPTIONAL_STOP);
+      // writeWords("   M1") // optional po irankio keitimo anton
     }
   }
   if (hasParameter("operation-comment")) { //anton opZmin     
@@ -1814,6 +1814,7 @@ function onDwell(seconds) {
 
 function onCycle() {
   writeBlock(gPlaneModal.format(17));
+  writeWords("  (" + cycleType + ")") //anton
 }
 
 function getCommonCycle(x, y, z, r, c) {

@@ -7,6 +7,7 @@
   dmg maho
 
   #TODO MCALL Ciklai
+  anton: LABEL, IRANKIU APRASYMAS ZMIN, OPZMIN
 
   $Revision: 41757 c26015439a1ddd19e2ba12a92d1f6f285cc9892d $
   $Date: 2017-12-20 11:03:56 $
@@ -46,7 +47,7 @@ properties = {
   writeMachine: true, // write machine
   writeTools: true, // writes the tools
   preloadTool: false, // preloads next tool on tool change if any
-  maxSpindleSpeed:12000, //max Spindle Speed
+  maxSpindleSpeed:20000, //max Spindle Speed
   autoBazes: true,
   xOffset:"120.05", // enter X-offset value for output in G10 block 
   yOffset:"41.35", // enter Y-offset value for output in G10 block 
@@ -900,7 +901,8 @@ function subprogramDefine(_initialPosition, _abc, _retracted, _zIsOutput) {
     currentSubprogram++;
     // writeBlock("REPEAT LABEL" + currentSubprogram + " LABEL0");
     if (!properties.useFilesForSubprograms) {
-    writeBlock("CALL BLOCK LABEL" + currentSubprogram + " TO LABEL0");
+    // writeBlock("CALL BLOCK LABEL" + currentSubprogram + " TO LABEL0");
+    writeBlock("REPEAT LABEL" + currentSubprogram); //ANTON LABEL
     }
     firstPattern = true;
     subprogramStart(_initialPosition, _abc, false);
@@ -939,7 +941,8 @@ function subprogramStart(_initialPosition, _abc, _incremental) {
 
 function subprogramEnd() {
   if (firstPattern && !properties.useFilesForSubprograms) {
-    writeBlock("LABEL0:"); // sets the end block of the subroutine
+    // writeBlock("LABEL0:"); // sets the end block of the subroutine
+    writeBlock("ENDLABEL:"); //ANTON LABEL sets the end block of the subroutine
     writeln("");
     subprograms += getRedirectionBuffer();
   } else if (properties.useFilesForSubprograms) {
@@ -1110,53 +1113,15 @@ function onSection() {
           }
           zRange.expandToRange(section.getGlobalZRange());
         }
-        writeComment(tool.description + "    D=" + xyzFormat.format(tool.diameter) + "   ZMIN=" + xyzFormat.format(zRange.getMinimum()));
+        var toolInfo = (" ;   D=" + xyzFormat.format(tool.diameter) + "   ZMIN=" + xyzFormat.format(zRange.getMinimum()));
       }
     }
     
 
-    if (hasParameter("operation-comment")) { //anton
-        var comment = getParameter("operation-comment");
-        if (comment && ((comment !== lastOperationComment) || !patternIsActive || insertToolCall)) {
-          // writeln("");
-          writeWords(" ; OP:  " + comment); //anton
-          lastOperationComment = comment;
-        } else if (!patternIsActive || insertToolCall) {
-          writeln("");
-        }
-      } else {
-        writeln("");
-    }
 
-    // if (properties.showNotes && hasParameter("notes")) {
-    //   var notes = getParameter("notes");
-    //   if (notes) {
-    //     var lines = String(notes).split("\n");
-    //     var r1 = new RegExp("^[\\s]+", "g");
-    //     var r2 = new RegExp("[\\s]+$", "g");
-    //     for (line in lines) {
-    //       var comment = lines[line].replace(r1, "").replace(r2, "");
-    //       if (comment) {
-    //         writeComment(comment);
-    //       }
-    //     }
-    //   }
-    // }
 
-    if (properties.showNotes && hasParameter("notes")) {
-      var notes = getParameter("notes");
-      if (notes) {
-        var lines = String(notes).split("\n");
-        var r1 = new RegExp("^[\\s]+", "g");
-        var r2 = new RegExp("[\\s]+$", "g");
-        for (line in lines) {
-          var comment = lines[line].replace(r1, "").replace(r2, "");
-          if (comment) {
-            writeWords(" ; PASTABA:  " + comment);
-          }
-        }
-      }
-    }
+
+
   
   if (insertToolCall) {
     forceWorkPlane();
@@ -1176,10 +1141,11 @@ function onSection() {
       error(localize("Length offset out of range."));
       return;
     }
-    writeBlock( //dump toolchange anton
+    writeWords( //dump toolchange anton
       mFormat.format(6),
-      ("(" + (properties.toolAsName ? ""  + "\"" + (tool.description.toLowerCase()) + "\")" : toolFormat.format(tool.number))
+      ("(" + (properties.toolAsName ? ""  + "\"" + ((tool.description.toLowerCase()) + "\")" + toolInfo) : toolFormat.format(tool.number))
     ));
+    // writeComment(toolInfo)
       //  dFormat.format(lengthOffset));
 
     // writeBlock(mFormat.format(6));
@@ -1202,6 +1168,35 @@ function onSection() {
     //     writeComment(localize("ZMIN") + "=" + zRange.getMinimum());
     //   }
     }
+
+    if (hasParameter("operation-comment")) { //anton
+      var opZmin = "   Zmin=" + xyzFormat.format(currentSection.getGlobalZRange().getMinimum());
+      var comment = getParameter("operation-comment");
+      if (comment && ((comment !== lastOperationComment) || !patternIsActive || insertToolCall)) {
+        // writeln("");
+        writeWords(" ;  " + comment + opZmin); //anton
+        lastOperationComment = comment;
+      } else if (!patternIsActive || insertToolCall) {
+        writeln("");
+      }
+    } else {
+      writeln("");
+    }
+    if (properties.showNotes && hasParameter("notes")) {
+      var notes = getParameter("notes");
+      if (notes) {
+        var lines = String(notes).split("\n");
+        var r1 = new RegExp("^[\\s]+", "g");
+        var r2 = new RegExp("[\\s]+$", "g");
+        for (line in lines) {
+          var comment = lines[line].replace(r1, "").replace(r2, "");
+          if (comment) {
+            writeWords("   ; PASTABA:  " + comment);
+          }
+        }
+      }
+    }
+
 
     if (properties.preloadTool) {
       var nextTool = (properties.toolAsName ? getNextToolDescription(tool.description) : getNextTool(tool.number));
@@ -1275,13 +1270,13 @@ function onSection() {
     newSpindleSpeed = tool.spindleRPM; //anton
     
     if (tool.spindleRPM < 1) {
-      error(localize("Spindle speed out of  range."));
+      error(localize("Spindle speed out of range."));
       return;
     }
     
     if (tool.spindleRPM > properties.maxSpindleSpeed) {
       newSpindleSpeed = properties.maxSpindleSpeed; //anton
-      writeComment("S" + tool.spindleRPM); //sukiai pagal iranki Anton
+      writeWords("   ; S" + tool.spindleRPM); //sukiai pagal iranki Anton
       // warning(localize("Spindle speed exceeds maximum value."));
     }
     writeBlock(
@@ -1750,8 +1745,8 @@ var expandCurrentCycle = false;
 // }
 
 function onCycle() { //mcall replace anton 
-  writeBlock(gPlaneModal.format(17));
-  
+  // writeBlock(gPlaneModal.format(17)); //g17 anton
+  writeWords(" ;  " + cycleType) //anton
   expandCurrentCycle = false;
 
   if ((cycleType != "tapping") &&
@@ -1762,7 +1757,7 @@ function onCycle() { //mcall replace anton
     writeBlock(feedOutput.format(cycle.feedrate/spindleSpeed)); //g95 anton
   }
 
-  var RTP = cycle.clearance; // return plane (absolute)
+  var RTP = cycle.clearance; // return plane (absolute) 
   var RFP = cycle.stock; // reference plane (absolute)
   var SDIS = cycle.retract - cycle.stock; // safety distance
   var DP = cycle.bottom; // depth (absolute)
@@ -3037,9 +3032,11 @@ function onCommand(command) {
 function onSectionEnd() {
   if (currentSection.isMultiAxis()) {
     writeBlock("TRAFOOF");
+    writeBlock(gPlaneModal.reset()); //anton g17
+    
   }
 
-  writeBlock(gPlaneModal.format(17));
+  // writeBlock(gPlaneModal.format(17)); //anton g17
 
   if (true) {
     if (isRedirecting()) {

@@ -29,7 +29,7 @@ minimumChordLength = spatial(0.25, MM);
 minimumCircularRadius = spatial(0.01, MM);
 maximumCircularRadius = spatial(1000, MM);
 minimumCircularSweep = toRad(0.01);
-var useArcTurn = false;
+var useArcTurn = true;
 maximumCircularSweep = toRad(useArcTurn ? (999 * 360) : 90); // max revolutions
 allowHelicalMoves = true;
 allowedCircularPlanes = undefined; // allow any circular motion
@@ -39,21 +39,21 @@ properties = {
   writeMachine: true, // write machine
   writeTools: true, // writes the tools
   preloadTool: true, // preloads next tool on tool change if any
-  showSequenceNumbers: true, // show sequence numbers
+  showSequenceNumbers: false, // show sequence numbers
   sequenceNumberStart: 10, // first sequence number
   sequenceNumberIncrement: 1, // increment for sequence numbers
   optionalStop: true, // optional stop
-  useShortestDirection: true, // specifies that shortest angular direction should be used
-  useParametricFeed: false, // specifies that feed should be output using Q values
-  showNotes: false, // specifies that operation notes should be output.
+  useShortestDirection: false, // specifies that shortest angular direction should be used
+  useParametricFeed: true, // specifies that feed should be output using Q values
+  showNotes: true, // specifies that operation notes should be output.
   useCIP: false, // enable to use the CIP command
-  useCycle832: false, // enable to use CYCLE832
+  useCycle832: true, // enable to use CYCLE832
   toolAsName: true, // specifies if the tool should be called with a number or with the tool description
-  useSubroutines: false, // specifies that subroutines per each operation should be generated
+  useSubroutines: true, // specifies that subroutines per each operation should be generated
   useFilesForSubprograms: false, // specifies that one file should be generated to section
-  useSubroutinePatterns: false, // generates subroutines for patterned operation
+  useSubroutinePatterns: true, // generates subroutines for patterned operation
   useSubroutineCycles: false, // generates subroutines for cycle operations on same holes
-  cycle800Mode: "27", // specifies the mode to use for CYCLE800
+  cycle800Mode: "54", // specifies the mode to use for CYCLE800
   cycle800SwivelDataRecord: "DMG", // specifies the label to use for the Swivel Data Record for CYCLE800
   useExtendedCycles: false, // use extended cycles
   singleLineProbing: false // single line probing
@@ -195,10 +195,10 @@ probeMultipleFeatures = true;
 */
 function writeBlock() {
   if (properties.showSequenceNumbers) {
-    writeWords2("N" + sequenceNumber, arguments);
+    writeWords2(" N" + sequenceNumber, arguments);
     sequenceNumber += properties.sequenceNumberIncrement;
   } else {
-    writeWords(arguments);
+    writeWords(" ", arguments);
   }
 }
 
@@ -211,10 +211,10 @@ function formatComment(text) {
 */
 function writeComment(text) {
   if (properties.showSequenceNumbers) {
-    writeWords2("N" + sequenceNumber, formatComment(text));
+    writeWords2(" N" + sequenceNumber, formatComment(text));
     sequenceNumber += properties.sequenceNumberIncrement;
   } else {
-    writeWords(formatComment(text));
+    writeWords(" " + formatComment(text));
   }
 }
 
@@ -254,22 +254,22 @@ function onOpen() {
     inspectionWriteVariables();
   }
 
-  if (false) {
-    var aAxis = createAxis({coordinate:0, table:true, axis:[1, 0, 0], range:[-120.0001, 120.0001], preference:1});
-    //var bAxis = createAxis({coordinate:1, table:true, axis:[0, 1, 0], range:[-120.0001, 120.0001], preference:1});
-    var cAxis = createAxis({coordinate:2, table:true, axis:[0, 0, 1], range:[0, 360], cyclic:true});
-    machineConfiguration = new MachineConfiguration(aAxis, cAxis);
+  if (false) { //5axis simultanious config ANTON
+    // var aAxis = createAxis({coordinate:0, table:true, axis:[1, 0, 0], range:[-120.0001, 120.0001], preference:1});
+    var bAxis = createAxis({coordinate:0, table:false, axis:[0, 1, 0], range:[-90.0001, 90.0001], preference:1});
+    var cAxis = createAxis({coordinate:1, table:true, axis:[0, 0, 1], range:[0, 360], cyclic:true});
+    machineConfiguration = new MachineConfiguration(bAxis, cAxis);
 
     setMachineConfiguration(machineConfiguration);
     optimizeMachineAngles2(0);
   }
 
-  /*
+  
   // NOTE: setup your home positions here
-  machineConfiguration.setRetractPlane(0); // home position Z
+  machineConfiguration.setRetractPlane(-13.1); // home position Z
   machineConfiguration.setHomePositionX(0); // home position X
-  machineConfiguration.setHomePositionY(0); // home position Y
-*/
+  machineConfiguration.setHomePositionY(-3.2); // home position Y
+
 
   if (properties.useShortestDirection) {
     // abcFormat and abcDirectFormat must be compatible except for =DC()
@@ -324,8 +324,21 @@ function onOpen() {
       writeComment("  " + localize("model") + ": " + model);
     }
     if (description) {
-      writeComment("  " + localize("description") + ": "  + description);
+      writeComment("  " + localize("description ") + ": "  + description);
     }
+  }
+//anton asiu pasukimai pradzioje
+  if (machineConfiguration.isMultiAxisConfiguration()) {
+    for (var i = 0; i < getNumberOfSections(); ++i) {
+      var abc = getWorkPlaneMachineABC(getSection(i).workPlane);
+      writeComment(
+        "OP" + (i + 1) + ": " +
+        conditional(machineConfiguration.isMachineCoordinate(0), " B" + abcFormat.format(abc.x)) +
+        conditional(machineConfiguration.isMachineCoordinate(1), " C" + abcFormat.format(abc.y)) +
+        conditional(machineConfiguration.isMachineCoordinate(2), " A" + abcFormat.format(abc.z))
+      );
+    }
+    currentMachineABC = undefined; // make sure we restart from the initial orientation
   }
 
   // dump tool information
@@ -681,14 +694,14 @@ function setWorkPlane(abc, turn) {
 
     var FR = 1; // 0 = without moving to safety plane, 1 = move to safety plane only in Z, 2 = move to safety plane Z,X,Y
     var TC = properties.cycle800SwivelDataRecord;
-    var ST = 0;
-    var MODE = cycle800Config[0];
+    var ST = 100000;
+    var MODE = 192; //cycle800Config[0]; //anton
     var X0 = 0;
     var Y0 = 0;
     var Z0 = 0;
-    var A = abc.x;
-    var B = abc.y;
-    var C = abc.z;
+    var A = abc.x;//x
+    var B = abc.y;//y
+    var C = abc.z;//z
     var X1 = 0;
     var Y1 = 0;
     var Z1 = 0;
@@ -696,7 +709,7 @@ function setWorkPlane(abc, turn) {
     var DMODE = 0; // keep the previous plane active
 
     if (!properties.useExtendedCycles) {
-      writeBlock(
+      writeWords(
         "CYCLE800(" + [
           FR,
           "\"" + TC + "\"",
@@ -711,10 +724,12 @@ function setWorkPlane(abc, turn) {
           xyzFormat.format(X1),
           xyzFormat.format(Y1),
           xyzFormat.format(Z1),
-          DIR].join(",") + ")"
+          DIR,
+          100,                      //100 anton
+          1].join(",") + ")"        //1 anton
       );
     } else {
-      writeBlock(
+      writeWords(
         "CYCLE800(" +
         [FR,
           "\"" + TC + "\"",
@@ -1075,6 +1090,7 @@ function setAbsoluteMode(xyz, abc) {
   }
 }
 
+
 function onSection() {
   if (properties.toolAsName && !tool.description) {
     if (hasParameter("operation-comment")) {
@@ -1104,9 +1120,12 @@ function onSection() {
     
     // retract to safe plane
     writeRetract(Z);
+    writeRetract(Y); //anton retract Y
 
     if (newWorkPlane && useMultiAxisFeatures) {
-      setWorkPlane(new Vector(0, 0, 0), false); // reset working plane
+      writeBlock("CYCLE800()")
+      // setWorkPlane(new Vector(0, 0, 0), false); // reset working plane //anton cycle800 on sectionend
+      // writeComment("kazkas")
     }
   }
 
@@ -2511,7 +2530,7 @@ function onSectionEnd() {
     }
   }
 
-  // the code below gets the machine angles from previous operation.  closestABC must also be set to true
+  // the code below gets the machine angles from previous operation.  closestABC must also be set to true 
   if (currentSection.isMultiAxis() && currentSection.isOptimizedForMachine()) {
     currentMachineABC = currentSection.getFinalToolAxisABC();
   }
@@ -2519,7 +2538,7 @@ function onSectionEnd() {
   forceAny();
 }
 
-properties.homeXYAtEnd = false;
+properties.homeXYAtEnd = true;
 if (propertyDefinitions === undefined) {
   propertyDefinitions = {};
 }
@@ -2572,7 +2591,7 @@ function onClose() {
   writeRetract(Z);
 
   setWorkPlane(new Vector(0, 0, 0), true); // reset working plane
-
+// writeBlock("CYCLE800()")
   if (properties.homeXYAtEnd) {
     writeRetract(X, Y);
   }
