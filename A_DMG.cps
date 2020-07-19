@@ -349,27 +349,34 @@ function onOpen() {
       }
     }
     var tools = getToolTable();
-    //    Anton lentele pradzioje pagal seka
+    //    Anton lentele pradzioje pagal seka 
     if (tools.getNumberOfTools() > 0) {
       var irankiai = [];
       for (var i = 0; i < getNumberOfSections(); ++i) {        
         var sectioniii = getSection(i);
         var tool = sectioniii.getTool();
         var comment = "" //"T" + toolFormat.format(tool.number);
-        if (tool.description) {
-          comment += tool.description.toLowerCase();
-        }
-        comment += "   - D=" + xyzFormat.format(tool.diameter); // + " H=" + xyzFormat.format(tool.bodyLength);    
+        comment += "D=" + tool.diameter.toFixed(1); // + "  H=" + xyzFormat.format(tool.bodyLength);    
         if (zRanges[tool.number]) {
-          comment += "   Zmin=" + xyzFormat.format(zRanges[tool.number].getMinimum());
+          comment += "  Z=" + zRanges[tool.number].getMinimum().toFixed(1);
         }
-        // if ((tool.taperAngle > 0) && (tool.taperAngle < Math.PI)) {
-        //   comment += " " + localize("- K") + "=" + taperFormat.format(tool.taperAngle) + localize("deg");
-        // } 
-        // if (tool.cornerRadius > 0) {
-        //   comment += " - " + localize("CR") + "=" + xyzFormat.format(tool.cornerRadius); 
-        // }          
-        // writeComment(comment);
+        if (tool.description) {
+          comment +="  - " + tool.description.toLowerCase();
+        }
+        if ((tool.taperAngle > 0) && (tool.taperAngle < Math.PI)) {
+          comment += "   - " + taperFormat.format(tool.taperAngle) + "deg";
+        } 
+        if (tool.cornerRadius > 0) {
+          comment += " R=" + xyzFormat.format(tool.cornerRadius); 
+        } 
+        if (tool.threadPitch) {
+          comment += " x" + xyzFormat.format(tool.threadPitch); 
+        }  
+        if (tool.spindleRPM){
+          var toolSurfaceSpeed = Math.PI * tool.diameter * tool.spindleRPM / 1000
+          comment += "   Vc=" + toolSurfaceSpeed.toFixed(0);
+          if (toolSurfaceSpeed > 500) {comment += " !!!"}
+        } 
         irankiai.push(comment)
       }
       var lines = String(removeDups(irankiai)).split(",");

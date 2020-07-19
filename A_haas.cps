@@ -484,7 +484,7 @@ function onOpen() {
       return;
     }
     writeln(
-      "O" + oFormat.format(programId) + " (" + kelias.toLocaleUpperCase() + ")" +
+      "O" + oFormat.format(programId) + formatComment(kelias.toLocaleUpperCase()) +
       conditional(programComment, " " + formatComment(programComment.substr(0, maximumLineLength - 2 - ("O" + oFormat.format(programId)).length - 1)))
     );
     lastSubprogram = (initialSubprogramNumber - 1);
@@ -577,22 +577,30 @@ if (properties.autoBazes) {
         var sectioniii = getSection(i);
         var tool = sectioniii.getTool();        
         var comment = "T" + toolFormat.format(tool.number);
-        comment += "   D=" + xyzFormat.format(tool.diameter); // + " H=" + xyzFormat.format(tool.bodyLength);    
+        comment += "  D=" + tool.diameter.toFixed(1); // + "  H=" + xyzFormat.format(tool.bodyLength);    
         if (zRanges[tool.number]) {
-          comment += "     Zmin=" + xyzFormat.format(zRanges[tool.number].getMinimum());
+          comment += "  Z=" + zRanges[tool.number].getMinimum().toFixed(1);
+        }
+        if (tool.spindleRPM){
+          var toolSurfaceSpeed = Math.PI * tool.diameter * tool.spindleRPM / 1000
+          comment += "  Vc=" + toolSurfaceSpeed.toFixed(0);
+          if (toolSurfaceSpeed > 500){
+            comment += " !!!"
+          }
         }
         if (tool.description) {
-          comment += "    - " + tool.description;
-          //  + "; F=" + tool.feed_cutting;
+          comment += "   - " + tool.description;
         }
-        // comment +=";   S=" + tool.spindleRPM.toFixed(0);
-        // if ((tool.taperAngle > 0) && (tool.taperAngle < Math.PI)) {
-        //   comment += "  " + localize("- K") + "=" + taperFormat.format(tool.taperAngle) + localize("deg");
-        // } 
-        // if (tool.cornerRadius > 0) {
-        //   comment += " - " + localize("CR") + " =" + xyzFormat.format(tool.cornerRadius); 
-        // }          
-        // writeComment(comment); 
+        if ((tool.taperAngle > 0) && (tool.taperAngle < Math.PI)) {
+          comment += " - " + taperFormat.format(tool.taperAngle) + "deg";
+        } 
+        if (tool.cornerRadius > 0) {
+          comment += " - R=" + xyzFormat.format(tool.cornerRadius); 
+        } 
+        if (tool.threadPitch) {
+          comment += " x " + xyzFormat.format(tool.threadPitch); 
+        }  
+             
         irankiai.push(comment)
       }  
       var lines = String(removeDups(irankiai)).split(",");
