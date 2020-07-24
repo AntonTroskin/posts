@@ -63,7 +63,7 @@ properties = {
   useCIP: false, // enable to use the CIP command
   useCycle832: false, // enable to use CYCLE832
   toolAsName: true, // specifies if the tool should be called with a number or with the tool description
-  useSubroutines: false, // specifies that subroutines per each operation should be generated
+  useSubroutines: true, // specifies that subroutines per each operation should be generated
   useFilesForSubprograms: false, // specifies that one file should be generated to section
   useSubroutinePatterns: false, // generates subroutines for patterned operation
   useSubroutineCycles: false, // generates subroutines for cycle operations on same holes
@@ -929,8 +929,8 @@ function subprogramDefine(_initialPosition, _abc, _retracted, _zIsOutput) {
     currentSubprogram++;
     // writeBlock("REPEAT LABEL" + currentSubprogram + " LABEL0");
     if (!properties.useFilesForSubprograms) {
-    // writeBlock("CALL BLOCK LABEL" + currentSubprogram + " TO LABEL0");
-    writeBlock("REPEAT LABEL" + currentSubprogram); //ANTON LABEL
+    writeBlock("CALL BLOCK LABEL" + currentSubprogram + " TO LABEL0");
+    // writeBlock("REPEAT LABEL" + currentSubprogram); //ANTON LABEL
     }
     firstPattern = true;
     subprogramStart(_initialPosition, _abc, false);
@@ -969,8 +969,8 @@ function subprogramStart(_initialPosition, _abc, _incremental) {
 
 function subprogramEnd() {
   if (firstPattern && !properties.useFilesForSubprograms) {
-    // writeBlock("LABEL0:"); // sets the end block of the subroutine
-    writeBlock("ENDLABEL:"); //ANTON LABEL sets the end block of the subroutine
+    writeBlock("LABEL0:"); // sets the end block of the subroutine
+    // writeBlock("ENDLABEL:"); //ANTON LABEL sets the end block of the subroutine
     writeln("");
     subprograms += getRedirectionBuffer();
   } else if (properties.useFilesForSubprograms) {
@@ -1156,9 +1156,9 @@ function onSection() {
 
     // onCommand(COMMAND_COOLANT_OFF);
   
-    if (!isFirstSection() && properties.optionalStop) {
-      onCommand(COMMAND_OPTIONAL_STOP);
-    }
+    // if (!isFirstSection() && properties.optionalStop) { // m1 before tool change anton
+    //   onCommand(COMMAND_OPTIONAL_STOP);
+    // }
 
     if (tool.number > 99999999) {
       warning(localize("Tool number exceeds maximum value."));
@@ -1173,6 +1173,8 @@ function onSection() {
       mFormat.format(6),
       ("(" + (properties.toolAsName ? ""  + "\"" + ((tool.description.toLowerCase()) + "\")" + toolInfo) : toolFormat.format(tool.number))
     ));
+
+    
     // writeComment(toolInfo)
       //  dFormat.format(lengthOffset));
 
@@ -1195,6 +1197,9 @@ function onSection() {
     //     }
     //     writeComment(localize("ZMIN") + "=" + zRange.getMinimum());
     //   }
+    if (!isFirstSection() && properties.optionalStop) {
+      onCommand(COMMAND_OPTIONAL_STOP);
+    }
     }
 
     if (hasParameter("operation-comment")) { //anton
